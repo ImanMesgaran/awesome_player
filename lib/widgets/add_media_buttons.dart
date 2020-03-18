@@ -25,25 +25,42 @@ class _AddActionButtonsState extends State<AddActionButtons> {
     return Container(
       padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           FloatingActionButton.extended(
-            label: Text('Add Music'),
+            elevation: 0,
+            backgroundColor: Color.fromRGBO(78, 78, 78, 1),
+            label: Text(
+              'Add Music',
+              style:
+                  TextStyle(color: Colors.white54, fontWeight: FontWeight.bold),
+            ),
             onPressed: () {
               widget.addAudioFile();
             },
             tooltip: 'Add Audio',
-            icon: Icon(Icons.audiotrack),
+            icon: Icon(
+              Icons.audiotrack,
+              color: Colors.white38,
+            ),
             heroTag: 'Audio',
           ),
           FloatingActionButton.extended(
-            label: Text('Add Video'),
+            backgroundColor: Color.fromRGBO(78, 78, 78, 1),
+            label: Text(
+              'Add Video',
+              style:
+                  TextStyle(color: Colors.white54, fontWeight: FontWeight.bold),
+            ),
             onPressed: () {
               widget.addVideoFile();
             },
             tooltip: 'Add Video',
-            icon: Icon(Icons.music_video),
+            icon: Icon(
+              Icons.music_video,
+              color: Colors.white38,
+            ),
             heroTag: 'Video',
           ),
         ],

@@ -135,6 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _videoController = controller;
     _videoPlayer = VideoPlayer(_videoController);
     isPlayerInitialized = true;
+    _currentPlayer = PlayerType.videoPlayer;
   }
 
   @override
@@ -160,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void disposeVideoPlayer() async {
     //_videoController.value.
-    _currentPlayer = PlayerType.none;
+    _currentPlayer = PlayerType.audioPlayer;
     _videoController.removeListener(() {});
     _videoController.pause();
     //_isPlayerInitialized = false;
@@ -175,12 +176,32 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       //body: SlidingPanel(panelController: _panelController, files: files),
       body: files == null || files.isEmpty
-          ? Center(
-              child: Text(
-              'add some media files',
-              style: TextStyle(fontSize: 15, fontStyle: FontStyle.normal),
-            ))
-          : mediaListView(),
+          ? Container(
+              color: Color.fromRGBO(33, 33, 33, 1),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(
+                      Icons.playlist_add,
+                      size: 70,
+                      color: Colors.blueGrey,
+                    ),
+                    Text('Empty playlist',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.blueGrey,
+                        )),
+                  ],
+                ),
+              ),
+            )
+          : Container(
+              padding: EdgeInsets.only(top: 90, left: 5, right: 5),
+              child: mediaListView(),
+              color: Color.fromRGBO(22, 22, 22, 1),
+            ),
       floatingActionButton: AddActionButtons(
         addAudioFile: _pickAudioFileFrom,
         addVideoFile: _pickVideoFileFrom,
@@ -201,7 +222,8 @@ class _MyHomePageState extends State<MyHomePage> {
       shape: const CircularNotchedRectangle(),
       child: Container(
         height: 80.0,
-        color: Color.fromRGBO(36, 123, 160, 1),
+        //color: Color.fromRGBO(132, 218, 165, 1),
+        color: Color.fromRGBO(75, 75, 75, 1),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
@@ -210,7 +232,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: IconButton(
                   icon: Icon(
                     _currentPlayingIcon,
-                    color: Colors.white,
+                    color: Colors.white54,
                     size: 35,
                   ),
                   onPressed: () {
@@ -233,19 +255,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   LinearProgressIndicator(
                     backgroundColor: Colors.transparent,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                        Color.fromRGBO(244, 134, 104, 1)),
+                        Color.fromRGBO(70, 70, 70, 0.7)),
                     value: progress,
                   ),
                   Expanded(
                     child: Center(
                       child: FittedBox(
-                        child: Text(
-                          _selectedMedia,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child: bottomPlayer(),
                       ),
                     ),
                   ),
@@ -255,16 +271,33 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               flex: 1,
               child: IconButton(
-                  icon: Icon(
-                    Icons.favorite,
-                    color: Colors.white,
-                  ),
+                  icon: Icon(Icons.favorite, color: Colors.white54),
                   onPressed: () {}),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget bottomPlayer() {
+    if (_currentPlayer == PlayerType.audioPlayer) {
+      return Text(
+        _selectedMedia,
+        style: TextStyle(
+            fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white54),
+      );
+    } else if (_currentPlayer == PlayerType.videoPlayer) {
+      return Container(
+        height: 80,
+        child: AspectRatio(
+          aspectRatio: _videoController.value.aspectRatio,
+          child: VideoPlayer(_videoController),
+        ),
+      );
+    } else {
+      return Container();
+    }
   }
 
   _pickVideoFileFrom() async {
@@ -330,39 +363,51 @@ class _MyHomePageState extends State<MyHomePage> {
     return ListView.builder(
       itemCount: files != null && files.isNotEmpty ? files.length : 1,
       itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(
-            files[index].fileName,
+        return Container(
+          height: 80,
+          child: Card(
+            color: Color.fromRGBO(36, 36, 36, 1),
+            elevation: 20,
+            child: ListTile(
+              title: Text(
+                files[index].fileName,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onTap: () {
+                // if (_currentPlayer == PlayerType.videoPlayer) {
+                //   //disposeVideoPlayer
+                // }
+                // if (_currentPlayer == PlayerType.audioPlayer) {
+                //   disposeAudioPlayer();
+                // }
+
+                _selectedMedia = files[index].fileName;
+
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            files[index].fileType == MediaType.audio
+                                ? AudioLocal(
+                                    audioPlayer: _audioPlayer,
+                                    audioPlayerId: _audioPlayerId,
+                                    file: files[index].file,
+                                    videoPlayerDisposable: disposeVideoPlayer)
+                                : VideoFile(
+                                    videoPlayer: _videoPlayer,
+                                    videoPlayerController: _videoController,
+                                    file: files[index].file,
+                                    audioPlayerDisposable: disposeAudioPlayer,
+                                    videoControllerInstance:
+                                        getVideoControllerInstance,
+                                    isPlayerInitialized: isPlayerInitialized,
+                                    needReInstantiation: _needReInstantiate)));
+              },
+            ),
           ),
-          onTap: () {
-            // if (_currentPlayer == PlayerType.videoPlayer) {
-            //   //disposeVideoPlayer
-            // }
-            // if (_currentPlayer == PlayerType.audioPlayer) {
-            //   disposeAudioPlayer();
-            // }
-
-            _selectedMedia = files[index].fileName;
-
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => files[index].fileType ==
-                            MediaType.audio
-                        ? AudioLocal(
-                            audioPlayer: _audioPlayer,
-                            audioPlayerId: _audioPlayerId,
-                            file: files[index].file,
-                            videoPlayerDisposable: disposeVideoPlayer)
-                        : VideoFile(
-                            videoPlayer: _videoPlayer,
-                            videoPlayerController: _videoController,
-                            file: files[index].file,
-                            audioPlayerDisposable: disposeAudioPlayer,
-                            videoControllerInstance: getVideoControllerInstance,
-                            isPlayerInitialized: isPlayerInitialized,
-                            needReInstantiation: _needReInstantiate)));
-          },
         );
       },
     );

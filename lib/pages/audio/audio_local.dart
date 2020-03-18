@@ -124,10 +124,8 @@ class _AudioLocalState extends State<AudioLocal> {
 
   @override
   Widget build(BuildContext context) {
+    /*
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Audio Player"),
-      ),
       body: Container(
         padding: const EdgeInsets.all(16.0),
         child: Center(
@@ -156,6 +154,52 @@ class _AudioLocalState extends State<AudioLocal> {
               )
             ],
           ),
+        ),
+      ),
+    );*/
+
+    return Scaffold(
+      backgroundColor: Color.fromRGBO(22, 22, 22, 1),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(0.0),
+        child: Stack(
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                Container(
+                  alignment: Alignment.topCenter,
+                  height: MediaQuery.of(context).size.height * 0.75,
+                  decoration: BoxDecoration(
+                    //border: Border.all(color: Colors.grey, width: 1.0),
+                    //borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.only(
+                      bottomRight: const Radius.circular(40.0),
+                      bottomLeft: const Radius.circular(40.0),
+                    ),
+                    color: Color.fromRGBO(83, 83, 83, 0.8),
+                  ),
+                ),
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.25,
+                  child: Center(
+                    child: IconButton(
+                      iconSize: 75,
+                      color: Colors.grey,
+                      icon: Icon(
+                        isPlaying
+                            ? Icons.pause_circle_outline
+                            : Icons.play_circle_outline,
+                      ),
+                      onPressed: () {
+                        isPlaying ? widget.audioPlayer.pause() : startPlaying();
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ],
         ),
       ),
     );
